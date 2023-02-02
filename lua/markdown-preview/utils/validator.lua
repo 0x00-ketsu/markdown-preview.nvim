@@ -1,7 +1,6 @@
 local fn = vim.fn
 
 local config = require('markdown-preview.config')
-local fmt = require('markdown-preview.utils.fmt')
 
 local M = {}
 

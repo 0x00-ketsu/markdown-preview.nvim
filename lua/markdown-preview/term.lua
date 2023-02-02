@@ -1,7 +1,6 @@
 local api = vim.api
 local fn = vim.fn
 
-local fmt = require('markdown-preview.utils.fmt')
 local config = require('markdown-preview.config')
 local window = require('markdown-preview.window')
 local file = require('markdown-preview.utils.file')
