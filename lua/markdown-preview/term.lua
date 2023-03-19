@@ -1,5 +1,6 @@
 local api = vim.api
 local fn = vim.fn
+local vl = vim.loop
 
 local config = require('markdown-preview.config')
 local window = require('markdown-preview.window')
@@ -19,6 +20,36 @@ local function tmp_file()
   local tmp = vim.fn.tempname() .. '.md'
   vim.fn.writefile(lines, tmp)
   return tmp
+end
+
+local function safe_close(h)
+  if not h:is_closing() then
+    h:close()
+  end
+end
+
+---Stop job for term
+---
+local function stop_job()
+  if job == nil then
+    return
+  end
+
+  if not job.stdout == nil then
+    job.stdout:read_stop()
+    safe_close(job.stdout)
+  end
+
+  if not job.stderr == nil then
+    job.stderr:read_stop()
+    safe_close(job.stderr)
+  end
+
+  if not job.handle == nil then
+    safe_close(job.handle)
+  end
+
+  job = nil
 end
 
 ---@class Term
@@ -97,7 +128,8 @@ function Term:setup()
     api.nvim_exec(
         [[
       aug MP
-        au ]] .. reload_events .. [[ ]] .. aupats .. [[ execute "lua require('markdown-preview').refresh()"
+        au ]] .. reload_events .. [[ ]] .. aupats ..
+            [[ execute "lua require('markdown-preview').refresh()"
       aug END
     ]], false
     )
@@ -115,8 +147,6 @@ end
 ---Open a terminal window and display glow generated contents.
 ---
 function Term:open()
-  self:_stop_job()
-
   if not file.is_markdown_filetype(vim.bo.filetype) then
     notify.error('Preview only works on markdown files.')
     return
@@ -146,25 +176,60 @@ end
 function Term:render()
   local tf = tmp_file()
   if #tf < 1 then
+    notify.error('Create temporary file failed.')
     return
   end
   self.tf = tf
 
   local glow_exec = config.get_glow_exec()
   local background = api.nvim_get_option('background') == 'light' and 'light' or 'dark'
-  local cmd = string.format('%s -s %s %s', glow_exec, background, self.tf)
+  local cmd_args = {glow_exec, '-s', background, self.tf}
 
   self:unlock()
   local chan = api.nvim_open_term(vim.g.mp_bufnr, {})
-  self.job_id = fn.jobstart(
-      cmd, {
-        on_stdout = function(_, data, _)
-          for _, d in ipairs(data) do
-            api.nvim_chan_send(chan, d .. '\r\n')
-          end
+  -- callbacks for handling output from process
+  local schedule = {
+    on_stdout = function(err, data)
+      if err then
+        notify.error('Failed render with error: ' .. vim.inspect(err))
+      end
+      if data then
+        local lines = vim.split(data, "\n", {})
+        for _, d in ipairs(lines) do
+          api.nvim_chan_send(chan, d .. "\r\n")
         end
-      }
+      end
+    end,
+    on_exit = function()
+      stop_job()
+    end
+  }
+
+  -- setup pipes
+  job = {stdout = vl.new_pipe(false), stderr = vl.new_pipe(false)}
+
+  local cmd = table.remove(cmd_args, 1)
+  -- LuaFormatter off
+  job.handle = vl.spawn(
+      cmd, {
+        args = cmd_args,
+        stdio = {nil, job.stdout, job.stderr}
+      },
+      vim.schedule_wrap(schedule.on_exit)
   )
+  -- LuaFormatter on
+  vl.read_start(job.stdout, vim.schedule_wrap(schedule.on_stdout))
+  vl.read_start(job.stderr, vim.schedule_wrap(schedule.on_stdout))
+
+  -- self.job_id = fn.jobstart(
+  --     cmd, {
+  --       on_stdout = function(_, data, _)
+  --         for _, d in ipairs(data) do
+  --           api.nvim_chan_send(chan, d .. '\r\n')
+  --         end
+  --       end
+  --     }
+  -- )
   self:lock()
 
   -- back to markdown file buffer
@@ -188,8 +253,6 @@ end
 ---Close opened terminal window.
 ---
 function Term:close()
-  self:_stop_job()
-
   if self:is_open() and api.nvim_win_is_valid(vim.g.mp_winnr) then
     api.nvim_win_close(vim.g.mp_winnr, true)
   end
