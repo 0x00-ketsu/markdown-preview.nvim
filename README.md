@@ -62,7 +62,8 @@ mp.setup(
     {
       glow = {
         -- When find executable path of `glow` failed (from PATH), use this value instead
-        exec_path = ''
+        exec_path = '',
+        style = '', -- Path to glamour JSON style file
       },
       -- Markdown preview term
       term = {

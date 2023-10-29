@@ -182,8 +182,8 @@ function Term:render()
   self.tf = tf
 
   local glow_exec = config.get_glow_exec()
-  local background = api.nvim_get_option('background') == 'light' and 'light' or 'dark'
-  local cmd_args = {glow_exec, '-s', background, self.tf}
+  local style = config.get_style()
+  local cmd_args = {glow_exec, '-s', style, self.tf}
 
   self:unlock()
   local chan = api.nvim_open_term(vim.g.mp_bufnr, {})
