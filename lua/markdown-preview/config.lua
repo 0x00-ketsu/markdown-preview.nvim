@@ -4,7 +4,8 @@
 local defaults = {
   glow = {
     -- When find executable path of `glow` failed (from PATH), use this value instead
-    exec_path = ''
+    exec_path = '',
+    style = '' -- Path to glamour JSON style file
   },
   -- Markdown preview term
   term = {
@@ -35,6 +36,18 @@ M.get_glow_exec = function()
     exec_path = 'glow'
   end
   return exec_path
+end
+
+---Get style
+---
+---@return string
+M.get_style = function()
+  local glow = M.opts.glow or {}
+  if string.len(glow['style']) > 0 then
+    return glow['style']
+  else
+    return vim.api.nvim_get_option('background') == 'light' and 'light' or 'dark'
+  end
 end
 
 ---Assign options
