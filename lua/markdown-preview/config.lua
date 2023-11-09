@@ -1,6 +1,4 @@
----@class ConfigOption
----@field glow table
----@field term table
+---@type mp.config
 local defaults = {
   glow = {
     -- When find executable path of `glow` failed (from PATH), use this value instead
@@ -52,11 +50,11 @@ end
 
 ---Assign options
 ---
----@param opts table
+---@param opts mp.config?
 M.setup = function(opts)
   M.opts = vim.tbl_deep_extend('force', {}, defaults, opts or {})
 end
 
-M.setup {}
+M.setup()
 
 return M

@@ -3,16 +3,12 @@ local terminal = require('markdown-preview.term')
 local notify = require('markdown-preview.utils.notify')
 local validator = require('markdown-preview.utils.validator')
 
----@class Global 'Plugin declared global variables'
----@field vim.g.mp_parent_winnr number 'Parent window handler of Markdown preview terminal window'
----@field vim.g.mp_winnr number 'Markdown preview terminal window handler'
----@field vim.g.mp_bufnr number 'Markdown preview terminal buffer handler'
-
 local M = {}
 
----@type Term?
+---@type mp.term
 local term
 
+---@param opts mp.config
 M.setup = function(opts)
   config.setup(opts)
 
