@@ -52,18 +52,12 @@ local function stop_job()
   job = nil
 end
 
----@class Term
----@field job_id number 'job id'
----@field tf string 'template filename'
 local Term = {}
 
 ---Create an instance of Term class.
 ---
----@param opts? ConfigOption
----@return Term
-Term.create = function(opts)
-  opts = opts or {}
-
+---@return mp.term
+Term.create = function()
   vim.g.mp_parent_winnr = api.nvim_get_current_win()
 
   local term = Term:new()
@@ -72,7 +66,7 @@ end
 
 ---Declare Term class.
 ---
----@return Term
+---@return mp.term
 function Term:new()
   local this = {}
   setmetatable(this, self)
