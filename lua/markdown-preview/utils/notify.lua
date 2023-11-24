@@ -13,7 +13,7 @@ M.notify = function(message, level)
 
   local ok, notify = pcall(require, 'notify')
   if ok then
-    notify(message, level, {title = config.plugin_name})
+    notify(message, level, { title = config.plugin_name })
   else
     vim.notify(message, level)
   end

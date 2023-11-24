@@ -3,24 +3,24 @@ local defaults = {
   glow = {
     -- When find executable path of `glow` failed (from PATH), use this value instead
     exec_path = '',
-    style = '' -- Path to glamour JSON style file
+    style = '', -- Path to glamour JSON style file
   },
   -- Markdown preview term
   term = {
     -- reload term when rendered markdown file changed
     reload = {
       enable = true,
-      events = {'InsertLeave', 'TextChanged'},
+      events = { 'InsertLeave', 'TextChanged' },
     },
     direction = 'vertical', -- choices: vertical / horizontal
     keys = {
-     close = {'q', '<Esc>'},
-     refresh = 'r',
-    }
-  }
+      close = { 'q', '<Esc>' },
+      refresh = 'r',
+    },
+  },
 }
 
-local M = {plugin_name = 'markdown-preview.nvim'}
+local M = { plugin_name = 'markdown-preview.nvim' }
 
 ---Get glow exec path
 ---

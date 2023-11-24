@@ -1,6 +1,6 @@
 local config = require('markdown-preview.config')
-local terminal = require('markdown-preview.term')
 local notify = require('markdown-preview.utils.notify')
+local terminal = require('markdown-preview.term')
 local validator = require('markdown-preview.utils.validator')
 
 local M = {}
