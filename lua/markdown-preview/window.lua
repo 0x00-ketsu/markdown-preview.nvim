@@ -17,7 +17,7 @@ M.open_normal_win = function(direction, win_opts, buf_opts)
   end
 
   bufnr = api.nvim_create_buf(false, true)
-  vim.cmd(string.format("buffer %d", bufnr))
+  vim.cmd(string.format('buffer %d', bufnr))
 
   local winnr = api.nvim_get_current_win()
   if win_opts ~= nil then

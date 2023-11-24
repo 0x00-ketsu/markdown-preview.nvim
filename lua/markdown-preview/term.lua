@@ -3,9 +3,9 @@ local fn = vim.fn
 local vl = vim.loop
 
 local config = require('markdown-preview.config')
-local window = require('markdown-preview.window')
 local file = require('markdown-preview.utils.file')
 local notify = require('markdown-preview.utils.notify')
+local window = require('markdown-preview.window')
 
 ---Create tmp file and write buffer lines to it.
 ---
@@ -80,8 +80,8 @@ function Term:setup()
   local term_opts = config.opts.term
 
   -- options
-  local win_opts = {number = false, relativenumber = false, foldenable = false, wrap = false}
-  local buf_opts = {bufhidden = 'wipe', filetype = 'markdownpreview'}
+  local win_opts = { number = false, relativenumber = false, foldenable = false, wrap = false }
+  local buf_opts = { bufhidden = 'wipe', filetype = 'markdownpreview' }
   local winnr, bufnr = window.open_normal_win(term_opts['direction'], win_opts, buf_opts)
   vim.g.mp_winnr = winnr
   vim.g.mp_bufnr = bufnr
@@ -90,15 +90,17 @@ function Term:setup()
   local key_bindings = term_opts.keys
   for action, keys in pairs(key_bindings) do
     if type(keys) == 'string' then
-      keys = {keys}
+      keys = { keys }
     end
 
     if vim.g.mp_bufnr ~= nil then
       for _, key in pairs(keys) do
         vim.api.nvim_buf_set_keymap(
-            vim.g.mp_bufnr, 'n', key,
-                [[<cmd>lua require('markdown-preview').do_action(']] .. action .. [[')<cr>]],
-                {silent = true, noremap = true, nowait = true}
+          vim.g.mp_bufnr,
+          'n',
+          key,
+          [[<cmd>lua require('markdown-preview').do_action(']] .. action .. [[')<cr>]],
+          { silent = true, noremap = true, nowait = true }
         )
       end
     end
@@ -109,7 +111,16 @@ function Term:setup()
   if term_reload_opts['enable'] then
     local reload_events = table.concat(term_reload_opts['events'] or {}, ',')
     local md_exts = {
-      'md', 'markdown', 'mkd', 'mkdn', 'mdwn', 'mdown', 'mdtxt', 'mdtext', 'rmd', 'wiki'
+      'md',
+      'markdown',
+      'mkd',
+      'mkdn',
+      'mdwn',
+      'mdown',
+      'mdtxt',
+      'mdtext',
+      'rmd',
+      'wiki',
     }
     local aupats = ''
     for idx, ext in ipairs(md_exts) do
@@ -119,21 +130,19 @@ function Term:setup()
         aupats = aupats .. string.format('*.%s', ext) .. ','
       end
     end
-    api.nvim_exec(
-        [[
+    api.nvim_exec([[
       aug MP
-        au ]] .. reload_events .. [[ ]] .. aupats ..
-            [[ execute "lua require('markdown-preview').refresh()"
+        au ]] .. reload_events .. [[ ]] .. aupats .. [[ execute "lua require('markdown-preview').refresh()"
       aug END
-    ]], false
-    )
+    ]], false)
   else
     api.nvim_exec(
-        [[
+      [[
       aug MP
         au!
       aug END
-    ]], false
+    ]],
+      false
     )
   end
 end
@@ -177,7 +186,7 @@ function Term:render()
 
   local glow_exec = config.get_glow_exec()
   local style = config.get_style()
-  local cmd_args = {glow_exec, '-s', style, self.tf}
+  local cmd_args = { glow_exec, '-s', style, self.tf }
 
   self:unlock()
   local chan = api.nvim_open_term(vim.g.mp_bufnr, {})
@@ -188,29 +197,26 @@ function Term:render()
         notify.error('Failed render with error: ' .. vim.inspect(err))
       end
       if data then
-        local lines = vim.split(data, "\n", {})
+        local lines = vim.split(data, '\n', {})
         for _, d in ipairs(lines) do
-          api.nvim_chan_send(chan, d .. "\r\n")
+          api.nvim_chan_send(chan, d .. '\r\n')
         end
       end
     end,
     on_exit = function()
       stop_job()
-    end
+    end,
   }
 
   -- setup pipes
-  job = {stdout = vl.new_pipe(false), stderr = vl.new_pipe(false)}
+  job = { stdout = vl.new_pipe(false), stderr = vl.new_pipe(false) }
 
   local cmd = table.remove(cmd_args, 1)
   -- LuaFormatter off
-  job.handle = vl.spawn(
-      cmd, {
-        args = cmd_args,
-        stdio = {nil, job.stdout, job.stderr}
-      },
-      vim.schedule_wrap(schedule.on_exit)
-  )
+  job.handle = vl.spawn(cmd, {
+    args = cmd_args,
+    stdio = { nil, job.stdout, job.stderr },
+  }, vim.schedule_wrap(schedule.on_exit))
   -- LuaFormatter on
   vl.read_start(job.stdout, vim.schedule_wrap(schedule.on_stdout))
   vl.read_start(job.stderr, vim.schedule_wrap(schedule.on_stdout))
