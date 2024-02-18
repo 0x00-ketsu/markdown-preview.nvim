@@ -3,7 +3,7 @@
 A Neovim plugin renders markdown file in terminal buffer.
 
 >
-> This plugin relys on [Glow](https://github.com/charmbracelet/glow), only work under Linux or Mac.
+> This plugin relies on [Glow](https://github.com/charmbracelet/glow), only work under Linux or Mac.
 
 [video](https://user-images.githubusercontent.com/16932133/216219726-f79645fb-555a-4684-8962-c69e87a7d605.mp4)
 
