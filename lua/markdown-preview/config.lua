@@ -11,6 +11,7 @@ local defaults = {
     reload = {
       enable = true,
       events = { 'InsertLeave', 'TextChanged' },
+      delay = 135,
     },
     direction = 'vertical', -- choices: vertical / horizontal
     keys = {
@@ -50,7 +51,7 @@ end
 
 ---Assign options
 ---
----@param opts mp.config?
+---@param opts? mp.config
 M.setup = function(opts)
   M.opts = vim.tbl_deep_extend('force', {}, defaults, opts or {})
 end

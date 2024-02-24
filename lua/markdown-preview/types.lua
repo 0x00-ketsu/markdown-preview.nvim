@@ -33,6 +33,7 @@
 ---@class mp.config.term.reload
 ---@field enable boolean
 ---@field events table
+---@field delay number
 
 ---
 ---NOTE: Types for Term
